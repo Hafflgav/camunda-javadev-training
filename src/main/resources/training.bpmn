@@ -7,7 +7,7 @@
     <bpmn:startEvent id="Start_Event" name="Tweet received">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="Tweet" label="Tweet Content" type="string" />
+          <camunda:formField id="Tweet" label="Tweet Content:" type="string" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_021e8p1</bpmn:outgoing>
