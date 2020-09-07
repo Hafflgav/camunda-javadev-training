@@ -24,12 +24,29 @@ public class ProcessJUnitTest {
   }
 
   @Test
+  @Deployment(resources = "training.bpmn")
+  public void testTweetDelegate(){
+    //given
+    Map<String, Object> variables = new HashMap<String, Object>();
+    variables.put("Tweet", "Make the world a better place! ");
+    variables.put("approval", true);
+
+    //When
+    ProcessInstance processInstance = runtimeService().startProcessInstanceByKey("Process_TwitterQA", variables);
+    Task task = taskService().createTaskQuery().singleResult();
+    taskService().complete(task.getId());
+
+    // Then
+    assertThat(processInstance).isEnded();
+  }
+
+  @Test
   @Deployment(resources="training.bpmn")
   public void testHappyPath() {
     // Given
     Map<String, Object> variables = new HashMap<String, Object>();
     variables.put("Tweet", "Make Camunda Great Again!");
-    variables.put("approval", true);
+    variables.put("approval", false);
 
     // When
     ProcessInstance processInstance = runtimeService().startProcessInstanceByKey("Process_TwitterQA", variables);

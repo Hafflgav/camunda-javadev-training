@@ -42,16 +42,15 @@
     <bpmn:sequenceFlow id="Flow_0pfc8qd" name="Yes" sourceRef="Gateway_approved" targetRef="Publish_Tweet">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${approval == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:scriptTask id="Publish_Tweet" name="Publish tweet" scriptFormat="javascript">
-      <bpmn:incoming>Flow_0pfc8qd</bpmn:incoming>
-      <bpmn:outgoing>Flow_0u80pvv</bpmn:outgoing>
-      <bpmn:script>print('Tweet published');</bpmn:script>
-    </bpmn:scriptTask>
     <bpmn:scriptTask id="Feedback_Tweet" name="Feedback to requester" scriptFormat="javascript">
       <bpmn:incoming>Flow_0bdg9p1</bpmn:incoming>
       <bpmn:outgoing>Flow_0733rei</bpmn:outgoing>
       <bpmn:script>print('Tweet rejected');</bpmn:script>
     </bpmn:scriptTask>
+    <bpmn:serviceTask id="Publish_Tweet" name="Publish tweet" camunda:class="com.camunda.training.TweetDelegate">
+      <bpmn:incoming>Flow_0pfc8qd</bpmn:incoming>
+      <bpmn:outgoing>Flow_0u80pvv</bpmn:outgoing>
+    </bpmn:serviceTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0dt3cy9">
@@ -116,11 +115,11 @@
           <dc:Bounds x="838" y="295" width="84" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_098742f_di" bpmnElement="Publish_Tweet">
-        <dc:Bounds x="610" y="120" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_18qhpcj_di" bpmnElement="Feedback_Tweet">
         <dc:Bounds x="610" y="230" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_16afr2e_di" bpmnElement="Publish_Tweet">
+        <dc:Bounds x="610" y="120" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
