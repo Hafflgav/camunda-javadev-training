@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" id="Definitions_0wi24rf" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.2.0">
+  <bpmn:collaboration id="Collaboration_0dt3cy9">
+    <bpmn:participant id="Participant_QA" name="Twitter QA Process" processRef="Process_TwitterQA" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_TwitterQA" isExecutable="true">
+    <bpmn:startEvent id="Start_Event" name="Tweet received">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="Tweet" label="Tweet Content" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_021e8p1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:exclusiveGateway id="Gateway_approved" name="Approved?">
+      <bpmn:incoming>Flow_1j5h9lk</bpmn:incoming>
+      <bpmn:outgoing>Flow_0bdg9p1</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0pfc8qd</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="End_Event_Published" name="Tweet published">
+      <bpmn:incoming>Flow_0u80pvv</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="Approve_Tweet" name="Approve tweet" camunda:candidateGroups="management">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="approval" label="Approved?" type="boolean" defaultValue="false" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_021e8p1</bpmn:incoming>
+      <bpmn:outgoing>Flow_1j5h9lk</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="End_Event_Rejected" name="Request rejected">
+      <bpmn:incoming>Flow_0733rei</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_021e8p1" sourceRef="Start_Event" targetRef="Approve_Tweet" />
+    <bpmn:sequenceFlow id="Flow_1j5h9lk" sourceRef="Approve_Tweet" targetRef="Gateway_approved" />
+    <bpmn:sequenceFlow id="Flow_0u80pvv" sourceRef="Publish_Tweet" targetRef="End_Event_Published" />
+    <bpmn:sequenceFlow id="Flow_0733rei" sourceRef="Feedback_Tweet" targetRef="End_Event_Rejected" />
+    <bpmn:sequenceFlow id="Flow_0bdg9p1" name="No" sourceRef="Gateway_approved" targetRef="Feedback_Tweet">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${approval == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0pfc8qd" name="Yes" sourceRef="Gateway_approved" targetRef="Publish_Tweet">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${approval == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:scriptTask id="Publish_Tweet" name="Publish tweet" scriptFormat="javascript">
+      <bpmn:incoming>Flow_0pfc8qd</bpmn:incoming>
+      <bpmn:outgoing>Flow_0u80pvv</bpmn:outgoing>
+      <bpmn:script>print('Tweet published');</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="Feedback_Tweet" name="Feedback to requester" scriptFormat="javascript">
+      <bpmn:incoming>Flow_0bdg9p1</bpmn:incoming>
+      <bpmn:outgoing>Flow_0733rei</bpmn:outgoing>
+      <bpmn:script>print('Tweet rejected');</bpmn:script>
+    </bpmn:scriptTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0dt3cy9">
+      <bpmndi:BPMNShape id="Participant_0wteane_di" bpmnElement="Participant_QA" isHorizontal="true">
+        <dc:Bounds x="130" y="80" width="850" height="250" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0pfc8qd_di" bpmnElement="Flow_0pfc8qd" bioc:stroke="#000" bioc:fill="#fff">
+        <di:waypoint x="505" y="160" />
+        <di:waypoint x="610" y="160" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="549" y="142" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0bdg9p1_di" bpmnElement="Flow_0bdg9p1" bioc:stroke="#000" bioc:fill="#fff">
+        <di:waypoint x="480" y="185" />
+        <di:waypoint x="480" y="270" />
+        <di:waypoint x="610" y="270" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="488" y="225" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0733rei_di" bpmnElement="Flow_0733rei">
+        <di:waypoint x="710" y="270" />
+        <di:waypoint x="862" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0u80pvv_di" bpmnElement="Flow_0u80pvv">
+        <di:waypoint x="710" y="160" />
+        <di:waypoint x="862" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1j5h9lk_di" bpmnElement="Flow_1j5h9lk">
+        <di:waypoint x="400" y="160" />
+        <di:waypoint x="455" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_021e8p1_di" bpmnElement="Flow_021e8p1">
+        <di:waypoint x="248" y="160" />
+        <di:waypoint x="300" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_0199bur_di" bpmnElement="Start_Event" bioc:stroke="#000" bioc:fill="#fff">
+        <dc:Bounds x="212" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="195" y="185" width="74" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0ofb5rq_di" bpmnElement="Gateway_approved" isMarkerVisible="true" bioc:stroke="#000" bioc:fill="#fff">
+        <dc:Bounds x="455" y="135" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="453" y="123" width="54" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0f88d8n_di" bpmnElement="End_Event_Published" bioc:stroke="#000" bioc:fill="#fff">
+        <dc:Bounds x="862" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="841" y="185" width="80" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1rmlhtx_di" bpmnElement="Approve_Tweet">
+        <dc:Bounds x="300" y="120" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1jzejj9_di" bpmnElement="End_Event_Rejected" bioc:stroke="#000" bioc:fill="#fff">
+        <dc:Bounds x="862" y="252" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="838" y="295" width="84" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_098742f_di" bpmnElement="Publish_Tweet">
+        <dc:Bounds x="610" y="120" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_18qhpcj_di" bpmnElement="Feedback_Tweet">
+        <dc:Bounds x="610" y="230" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
