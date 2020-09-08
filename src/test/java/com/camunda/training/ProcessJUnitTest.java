@@ -22,7 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class ProcessJUnitTest {
 
   @Rule
-  public ProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().build();
+  public ProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder
+          .create()
+          .build();
 
   @Before
   public void setup() {
@@ -40,8 +42,11 @@ public class ProcessJUnitTest {
     variables.put("approval", true);
 
     //When
-    ProcessInstance processInstance = runtimeService().startProcessInstanceByKey("Process_TwitterQA", variables);
-    Task task = taskService().createTaskQuery().singleResult();
+    ProcessInstance processInstance = runtimeService()
+            .startProcessInstanceByKey("Process_TwitterQA", variables);
+    Task task = taskService()
+            .createTaskQuery()
+            .singleResult();
     taskService().complete(task.getId());
 
     // Then
@@ -57,7 +62,8 @@ public class ProcessJUnitTest {
     variables.put("approval", false);
 
     // When
-    ProcessInstance processInstance = runtimeService().startProcessInstanceByKey("Process_TwitterQA", variables);
+    ProcessInstance processInstance = runtimeService()
+            .startProcessInstanceByKey("Process_TwitterQA", variables);
     List<Task> taskList = taskService()
             .createTaskQuery()
             .taskCandidateGroup("management")
@@ -77,8 +83,11 @@ public class ProcessJUnitTest {
     variables.put("approval", false);
 
     // When
-    ProcessInstance processInstance = runtimeService().startProcessInstanceByKey("Process_TwitterQA", variables);
-    Task task = taskService().createTaskQuery().singleResult();
+    ProcessInstance processInstance = runtimeService()
+            .startProcessInstanceByKey("Process_TwitterQA", variables);
+    Task task = taskService()
+            .createTaskQuery()
+            .singleResult();
     assertEquals("Approve tweet", task.getName());
     taskService().complete(task.getId());
 

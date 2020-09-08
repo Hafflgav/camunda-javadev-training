@@ -1,7 +1,6 @@
 package com.camunda.training;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
-import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,18 +16,6 @@ public class TweetDelegate implements JavaDelegate {
     private final AccessToken ACCESS_TOKEN = new AccessToken("220324559-jet1dkzhSOeDWdaclI48z5txJRFLCnLOK45qStvo", "B28Ze8VDucBdiE38aVQqTxOyPc7eHunxBVv7XgGim4say");
     private Twitter twitter = new TwitterFactory().getInstance();
     private String message;
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public Logger getLOGGER() {
-        return LOGGER;
-    }
 
     @Override
     public void execute(DelegateExecution delegateExecution) throws Exception {

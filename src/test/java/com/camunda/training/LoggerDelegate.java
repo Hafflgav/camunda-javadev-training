@@ -10,12 +10,6 @@ public class LoggerDelegate implements JavaDelegate {
 
     private final Logger LOGGER = LoggerFactory.getLogger(TweetDelegate.class.getName());
     private String message;
-    public String getMessage() {
-        return message;
-    }
-    public void setMessage(String message) {
-        this.message = message;
-    }
 
     @Override
     public void execute(DelegateExecution delegateExecution) throws Exception {
