@@ -4,7 +4,7 @@
     <bpmn:participant id="Participant_QA" name="Twitter QA Process" processRef="Process_TwitterQA" />
   </bpmn:collaboration>
   <bpmn:process id="Process_TwitterQA" isExecutable="true">
-    <bpmn:startEvent id="Start_Event" name="Tweet received">
+    <bpmn:startEvent id="Start_Event" name="Tweet received" camunda:formKey="embedded:app:forms/Start.html">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="Tweet" label="Tweet Content:" type="string" />
@@ -12,7 +12,7 @@
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_021e8p1</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:exclusiveGateway id="Gateway_approved" name="Approved?">
+    <bpmn:exclusiveGateway id="Gateway_approved" name="Approved?" default="Flow_0bdg9p1">
       <bpmn:incoming>Flow_1j5h9lk</bpmn:incoming>
       <bpmn:outgoing>Flow_0bdg9p1</bpmn:outgoing>
       <bpmn:outgoing>Flow_0pfc8qd</bpmn:outgoing>
@@ -20,7 +20,7 @@
     <bpmn:endEvent id="End_Event_Published" name="Tweet published">
       <bpmn:incoming>Flow_0u80pvv</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:userTask id="Approve_Tweet" name="Approve tweet" camunda:candidateGroups="management">
+    <bpmn:userTask id="Approve_Tweet" name="Approve tweet" camunda:formKey="embedded:app:forms/ReviewTweet.html" camunda:candidateGroups="management">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="approval" label="Approved?" type="boolean" defaultValue="false" />
@@ -36,9 +36,7 @@
     <bpmn:sequenceFlow id="Flow_1j5h9lk" sourceRef="Approve_Tweet" targetRef="Gateway_approved" />
     <bpmn:sequenceFlow id="Flow_0u80pvv" sourceRef="Publish_Tweet" targetRef="End_Event_Published" />
     <bpmn:sequenceFlow id="Flow_0733rei" sourceRef="Feedback_Tweet" targetRef="End_Event_Rejected" />
-    <bpmn:sequenceFlow id="Flow_0bdg9p1" name="No" sourceRef="Gateway_approved" targetRef="Feedback_Tweet">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${approval == false}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0bdg9p1" name="No" sourceRef="Gateway_approved" targetRef="Feedback_Tweet" />
     <bpmn:sequenceFlow id="Flow_0pfc8qd" name="Yes" sourceRef="Gateway_approved" targetRef="Publish_Tweet">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${approval == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -47,7 +45,7 @@
       <bpmn:outgoing>Flow_0733rei</bpmn:outgoing>
       <bpmn:script>print('Tweet rejected');</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:serviceTask id="Publish_Tweet" name="Publish tweet" camunda:class="com.camunda.training.TweetDelegate">
+    <bpmn:serviceTask id="Publish_Tweet" name="Publish tweet" camunda:asyncBefore="true" camunda:delegateExpression="${tweetDelegate}">
       <bpmn:incoming>Flow_0pfc8qd</bpmn:incoming>
       <bpmn:outgoing>Flow_0u80pvv</bpmn:outgoing>
     </bpmn:serviceTask>
@@ -59,9 +57,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_0pfc8qd_di" bpmnElement="Flow_0pfc8qd" bioc:stroke="#000" bioc:fill="#fff">
         <di:waypoint x="505" y="160" />
-        <di:waypoint x="610" y="160" />
+        <di:waypoint x="620" y="160" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="549" y="142" width="18" height="14" />
+          <dc:Bounds x="554" y="142" width="18" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0bdg9p1_di" bpmnElement="Flow_0bdg9p1" bioc:stroke="#000" bioc:fill="#fff">
@@ -77,7 +75,7 @@
         <di:waypoint x="862" y="270" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0u80pvv_di" bpmnElement="Flow_0u80pvv">
-        <di:waypoint x="710" y="160" />
+        <di:waypoint x="720" y="160" />
         <di:waypoint x="862" y="160" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1j5h9lk_di" bpmnElement="Flow_1j5h9lk">
@@ -119,7 +117,7 @@
         <dc:Bounds x="610" y="230" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_16afr2e_di" bpmnElement="Publish_Tweet">
-        <dc:Bounds x="610" y="120" width="100" height="80" />
+        <dc:Bounds x="620" y="120" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
