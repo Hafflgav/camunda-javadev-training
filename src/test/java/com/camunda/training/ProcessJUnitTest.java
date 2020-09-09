@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.camunda.bpm.engine.runtime.Job;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.test.Deployment;
@@ -48,6 +49,11 @@ public class ProcessJUnitTest {
             .createTaskQuery()
             .singleResult();
     taskService().complete(task.getId());
+    List<Job> jobList = jobQuery()
+            .processInstanceId(processInstance.getId())
+            .list();
+    Job job = jobList.get(0);
+    execute(job);
 
     // Then
     assertThat(processInstance).isEnded();
