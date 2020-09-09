@@ -15,12 +15,19 @@ import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageP
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.anyString;
 
 public class ProcessJUnitTest {
+
+  @Mock
+  private TwitterService twitterService;
 
   @Rule
   public ProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder
@@ -29,15 +36,18 @@ public class ProcessJUnitTest {
 
   @Before
   public void setup() {
+    MockitoAnnotations.initMocks(this);
     init(rule.getProcessEngine());
-    Mocks.register("tweetDelegate", new LoggerDelegate());
+    Mocks.register("tweetDelegate", new TweetDelegate(twitterService));
   }
 
 
   @Test
   @Deployment(resources = "training.bpmn")
-  public void testTweetDelegate(){
+  public void testHappyPath(){
     //given
+    Mockito.when(twitterService.sendTweet(anyString())).thenReturn(true);
+
     Map<String, Object> variables = new HashMap<String, Object>();
     variables.put("Tweet", "Make the world a better place!"+ UUID.randomUUID());
     variables.put("approval", true);
@@ -56,7 +66,8 @@ public class ProcessJUnitTest {
     execute(job);
 
     // Then
-    assertThat(processInstance).isEnded();
+    assertThat(processInstance).isEnded().hasPassed("End_Event_Published");
+    Mockito.verify(twitterService).sendTweet(anyString());
   }
 
   @Test
@@ -90,15 +101,14 @@ public class ProcessJUnitTest {
 
     // When
     ProcessInstance processInstance = runtimeService()
-            .startProcessInstanceByKey("Process_TwitterQA", variables);
-    Task task = taskService()
-            .createTaskQuery()
-            .singleResult();
-    assertEquals("Approve tweet", task.getName());
-    taskService().complete(task.getId());
+            .createProcessInstanceByKey("Process_TwitterQA")
+            .setVariables(variables)
+            .startAfterActivity("Approve_Tweet")
+            .execute();
 
     // Then
     assertEquals(0, runtimeService().createProcessInstanceQuery().count());
     assertThat(processInstance).isEnded();
+    assertThat(processInstance).hasPassed("End_Event_Rejected");
   }
 }
