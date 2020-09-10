@@ -1,5 +1,6 @@
 package com.camunda.training;
 
+import org.camunda.bpm.engine.delegate.BpmnError;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
@@ -31,6 +32,7 @@ public class TweetDelegate implements JavaDelegate {
             LOGGER.info("Tweet published successfully");
         }else{
             LOGGER.info("FAILED to publish Tweet!");
+            throw new BpmnError("duplicateTweet");
         }
     }
 }
