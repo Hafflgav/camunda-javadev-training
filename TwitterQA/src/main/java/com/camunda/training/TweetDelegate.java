@@ -13,9 +13,7 @@ import javax.inject.Inject;
 
 @Component
 public class TweetDelegate implements JavaDelegate {
-
     private final Logger LOGGER = LoggerFactory.getLogger(TweetDelegate.class.getName());
-    private Twitter twitter = new TwitterFactory().getInstance();
     private String message;
     private TwitterService twitterService;
 
