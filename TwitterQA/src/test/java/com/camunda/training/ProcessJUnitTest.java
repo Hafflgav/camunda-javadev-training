@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.camunda.bpm.engine.externaltask.ExternalTask;
 import org.camunda.bpm.engine.runtime.Job;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.task.Task;
@@ -105,10 +106,62 @@ public class ProcessJUnitTest {
             .setVariables(variables)
             .startAfterActivity("Approve_Tweet")
             .execute();
+    assertThat(processInstance).isWaitingAt("Feedback_Tweet");
+    complete(externalTask());
 
     // Then
-    assertEquals(0, runtimeService().createProcessInstanceQuery().count());
     assertThat(processInstance).isEnded();
     assertThat(processInstance).hasPassed("End_Event_Rejected");
+  }
+
+  @Test
+  @Deployment(resources="training.bpmn")
+  public void testSuperUserMessageEvents(){
+    // Given
+    Mockito.when(twitterService.sendTweet(anyString())).thenReturn(true);
+    ProcessInstance processInstance = runtimeService()
+            .createMessageCorrelation("superuserTweet")
+            .setVariable("Tweet", "I'm a superuser and can do whatever I want!")
+            .correlateWithResult()
+            .getProcessInstance();
+
+    // when
+    assertThat(processInstance).isStarted();
+    List<Job> jobList = jobQuery()
+            .processInstanceId(processInstance.getId())
+            .list();
+    assertEquals(1, jobList.size());
+    Job job = jobList.get(0);
+    execute(job);
+
+    // Then
+    assertThat(processInstance).isEnded();
+    assertThat(processInstance).hasPassed("End_Event_Published");
+    Mockito.verify(twitterService).sendTweet(anyString());
+  }
+
+  @Test
+  @Deployment(resources="training.bpmn")
+  public void testWithdrawMessageEvents(){
+    //given
+    Mockito.when(twitterService.sendTweet(anyString())).thenReturn(true);
+
+    Map<String, Object> variables = new HashMap<String, Object>();
+    variables.put("Tweet", "Make the world a better place!"+ UUID.randomUUID());
+    variables.put("approval", true);
+
+    ProcessInstance processInstance = runtimeService()
+            .startProcessInstanceByKey("Process_TwitterQA", variables);
+
+    //when
+    assertThat(processInstance).isStarted().isWaitingAt("Approve_Tweet");
+    runtimeService()
+            .createMessageCorrelation("tweetWithdrawn")
+            .processInstanceId(processInstance.getId())
+            .correlateWithResult();
+
+    // Then
+    assertThat(processInstance).isEnded();
+    assertThat(processInstance).hasPassed("End_Event_Withdrawn");
   }
 }
