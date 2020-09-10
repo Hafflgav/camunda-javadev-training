@@ -1,0 +1,186 @@
+{
+	"info": {
+		"_postman_id": "abceb737-7dc4-4b19-9bd4-5f96c8abedd0",
+		"name": "Camunda API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Camunda Process Definition Request",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/engine-rest/process-definition",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"engine-rest",
+						"process-definition"
+					]
+				},
+				"description": "Query all process definitions"
+			},
+			"response": []
+		},
+		{
+			"name": "Camunda Start Process Request",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"variables\": {\n        \"Tweet\": {\n            \"value\": \"This was brought to you by POSTMAN\",\n            \"type\": \"String\"\n        }\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/engine-rest/process-definition/key/Process_TwitterQA/start",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"engine-rest",
+						"process-definition",
+						"key",
+						"Process_TwitterQA",
+						"start"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Camunda Get Task Request",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/engine-rest/task/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"engine-rest",
+						"task",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Camunda Claim Task Request",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"userId\": \"demo\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/engine-rest/task/fc6bcc9c-f339-11ea-b405-4ef7d11aec9e/claim",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"engine-rest",
+						"task",
+						"fc6bcc9c-f339-11ea-b405-4ef7d11aec9e",
+						"claim"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Camunda Complete Task Request",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"variables\":\n    {\n        \"approval\": {\"value\": \"true\"}\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/engine-rest/task/fc6bcc9c-f339-11ea-b405-4ef7d11aec9e/complete",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"engine-rest",
+						"task",
+						"fc6bcc9c-f339-11ea-b405-4ef7d11aec9e",
+						"complete"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Camunda Superuser Start Request",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Camunda Withdraw Intermediate Request",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"messageName\": \"tweetWithdrawn\",\n    \"correlationKeys\": {\"Tweet\": {\"value\": \"Oh no! This needs to be withdrawn\", \"type\": \"String\"}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/engine-rest/message",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"engine-rest",
+						"message"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
