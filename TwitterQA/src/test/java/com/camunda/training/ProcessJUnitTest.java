@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.assertj.core.api.Assertions;
+import org.camunda.bpm.dmn.engine.DmnDecisionRuleResult;
+import org.camunda.bpm.dmn.engine.DmnDecisionTableResult;
 import org.camunda.bpm.engine.externaltask.ExternalTask;
 import org.camunda.bpm.engine.runtime.Job;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
@@ -44,22 +47,19 @@ public class ProcessJUnitTest {
 
 
   @Test
-  @Deployment(resources = "training.bpmn")
+  @Deployment(resources = {"autoApproval.dmn", "training.bpmn"})
   public void testHappyPath(){
     //given
     Mockito.when(twitterService.sendTweet(anyString())).thenReturn(true);
 
     Map<String, Object> variables = new HashMap<String, Object>();
-    variables.put("Tweet", "Make the world a better place!"+ UUID.randomUUID());
+    variables.put("Email", "");
+    variables.put("Tweet", "camunda rocks!"+ UUID.randomUUID());
     variables.put("approval", true);
 
     //When
     ProcessInstance processInstance = runtimeService()
             .startProcessInstanceByKey("Process_TwitterQA", variables);
-    Task task = taskService()
-            .createTaskQuery()
-            .singleResult();
-    taskService().complete(task.getId());
     List<Job> jobList = jobQuery()
             .processInstanceId(processInstance.getId())
             .list();
@@ -72,28 +72,7 @@ public class ProcessJUnitTest {
   }
 
   @Test
-  @Deployment(resources = "training.bpmn")
-  public void testTaskAssertion(){
-    // Given
-    Map<String, Object> variables = new HashMap<String, Object>();
-    variables.put("Tweet", "Make Camunda Great Again!");
-    variables.put("approval", false);
-
-    // When
-    ProcessInstance processInstance = runtimeService()
-            .startProcessInstanceByKey("Process_TwitterQA", variables);
-    List<Task> taskList = taskService()
-            .createTaskQuery()
-            .taskCandidateGroup("management")
-            .list();
-
-    // Then
-    assertNotNull(taskList);
-    assertEquals(1, taskList.size() );
-  }
-
-  @Test
-  @Deployment(resources="training.bpmn")
+  @Deployment(resources = {"autoApproval.dmn", "training.bpmn"})
   public void testSadPath() {
     // Given
     Map<String, Object> variables = new HashMap<String, Object>();
@@ -115,7 +94,7 @@ public class ProcessJUnitTest {
   }
 
   @Test
-  @Deployment(resources="training.bpmn")
+  @Deployment(resources = {"autoApproval.dmn", "training.bpmn"})
   public void testSuperUserMessageEvents(){
     // Given
     Mockito.when(twitterService.sendTweet(anyString())).thenReturn(true);
@@ -140,28 +119,29 @@ public class ProcessJUnitTest {
     Mockito.verify(twitterService).sendTweet(anyString());
   }
 
+
   @Test
-  @Deployment(resources="training.bpmn")
-  public void testWithdrawMessageEvents(){
-    //given
+  @Deployment(resources = {"autoApproval.dmn", "training.bpmn"})
+  public void testTweetFromJakob() {
+    // Given
     Mockito.when(twitterService.sendTweet(anyString())).thenReturn(true);
 
     Map<String, Object> variables = new HashMap<String, Object>();
-    variables.put("Tweet", "Make the world a better place!"+ UUID.randomUUID());
+    variables.put("Email", "jakob.freund@camunda.com");
+    variables.put("Tweet", "this needs to be published "+ UUID.randomUUID());
     variables.put("approval", true);
 
+    //When
     ProcessInstance processInstance = runtimeService()
             .startProcessInstanceByKey("Process_TwitterQA", variables);
-
-    //when
-    assertThat(processInstance).isStarted().isWaitingAt("Approve_Tweet");
-    runtimeService()
-            .createMessageCorrelation("tweetWithdrawn")
+    List<Job> jobList = jobQuery()
             .processInstanceId(processInstance.getId())
-            .correlateWithResult();
+            .list();
+    Job job = jobList.get(0);
+    execute(job);
 
     // Then
-    assertThat(processInstance).isEnded();
-    assertThat(processInstance).hasPassed("End_Event_Withdrawn");
+    assertThat(processInstance).isEnded().hasPassed("End_Event_Published");
+    Mockito.verify(twitterService).sendTweet(anyString());
   }
 }
