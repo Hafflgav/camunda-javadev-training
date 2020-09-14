@@ -27,12 +27,6 @@ public class TweetDelegate implements JavaDelegate {
     public void execute(DelegateExecution delegateExecution) throws Exception {
         message = (String) delegateExecution.getVariable("Tweet");
         LOGGER.info("Publishing Tweet: "+ message);
-        boolean success = twitterService.sendTweet(message);
-        if(success){
-            LOGGER.info("Tweet published successfully");
-        }else{
-            LOGGER.info("FAILED to publish Tweet!");
-            throw new BpmnError("duplicateTweet");
-        }
+        twitterService.sendTweet(message);
     }
 }
